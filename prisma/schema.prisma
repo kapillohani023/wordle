@@ -19,7 +19,7 @@ model User {
 }
 
 model Word {
-  id          String   @id @default(cuid())
+  id          Int      @id @default(autoincrement())
   word        String   @unique
   meaning     String
   createdDate DateTime @map("created_date") @default(now())
@@ -38,7 +38,7 @@ model Game {
   userId      String   @map("user_id")
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  wordId      String   @map("word_id")
+  wordId      Int      @map("word_id")
   word        Word     @relation(fields: [wordId], references: [id])
 
   @@index([wordId])
