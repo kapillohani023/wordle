@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  games     Game[]
+  createdAt DateTime @map("created_at") @default(now())
+
+  @@index([email])
+  @@map("users")
+}
+
+model Word {
+  id          String   @id @default(cuid())
+  word        String   @unique
+  meaning     String
+  createdDate DateTime @map("created_date") @default(now())
+  games       Game[]
+
+  @@index([word])
+  @@map("words")
+}
+
+model Game {
+  id          String   @id @default(cuid())
+  play        String
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @map("created_at") @default(now())
+
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  wordId      String   @map("word_id")
+  word        Word     @relation(fields: [wordId], references: [id])
+
+  @@index([wordId])
+  @@map("games")
+}
