@@ -41,6 +41,7 @@ model Game {
   wordId      Int      @map("word_id")
   word        Word     @relation(fields: [wordId], references: [id])
 
+  @@index([userId])
   @@index([wordId])
   @@map("games")
 }
