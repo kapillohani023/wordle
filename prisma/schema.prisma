@@ -8,39 +8,50 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  games     Game[]
-  createdAt DateTime @map("created_at") @default(now())
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  games       Game[]
+  createdAt   DateTime @map("created_at") @default(now())
 
   @@index([email])
   @@map("users")
 }
 
-model Word {
+model AllowedGuess {
+  word        String   @id
+  createdAt   DateTime @map("created_at") @default(now())
+
+  @@map("allowed_guesses")
+}
+
+model Answer {
   id          Int      @id @default(autoincrement())
   word        String   @unique
-  createdDate DateTime @map("created_date") @default(now())
+  createdAt   DateTime @map("created_at") @default(now())
   games       Game[]
 
   @@index([word])
-  @@map("words")
+  @@map("answers")
 }
 
 model Game {
   id          String   @id @default(cuid())
-  play        String
-  isCompleted Boolean  @default(false)
+  guesses     String[]
+  isCompleted Boolean  @default(false) @map("is_completed")
+  attempts    Int      @default(0)
+  isWon       Boolean  @default(false)
   createdAt   DateTime @map("created_at") @default(now())
 
   userId      String   @map("user_id")
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  wordId      Int      @map("word_id")
-  word        Word     @relation(fields: [wordId], references: [id])
+  answerId    Int      @map("answer_id")
+  answer      Answer   @relation(fields: [answerId], references: [id])
 
-  @@index([userId])
-  @@index([wordId])
+  @@index([userId, createdAt])
+  @@index([answerId])
+  @@index([createdAt])
+  @@unique([userId, answerId])
   @@map("games")
 }

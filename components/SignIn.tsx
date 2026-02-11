@@ -27,7 +27,7 @@ export async function SignIn() {
           >
             <button
               type="submit"
-              className="group flex w-full items-center justify-center gap-3 border border-gray-300 py-3 text-sm text-gray-700 shadow-sm hover:bg-gray-50 hover:text-gray-900"
+              className="group flex w-full cursor-pointer items-center justify-center gap-3 border border-gray-300 py-3 text-sm text-gray-700 shadow-sm transition-colors hover:text-gray-900"
             >
               <FcGoogle className="h-6 w-6" />
               Sign in with Google
