@@ -75,23 +75,23 @@ export function RootContent({ initialGame, initialStats, submitAttemptAction, si
           </p>
         </div>
       ) : null}
-      <div className="flex min-h-0 flex-1 flex-col ">
-        <section className="max-w-sm mx-auto mb-2 w-full rounded-md border border-gray-300 bg-gray-400 px-3 py-2 font-bold shadow-lg">
+      <div className="flex min-h-0 flex-1 flex-col items-center mt-10">
+        <section className="max-w-sm mx-auto mb-2 w-full rounded-md border border-gray-300 bg-gray-400 px-2 py-1 font-bold shadow-lg">
           <div className="grid grid-cols-4 gap-2 text-center">
             <div>
-              <p className="text-4xl leading-none text-white">{currentStats.played}</p>
+              <p className="text-2xl leading-none text-white">{currentStats.played}</p>
               <p className="mt-1 text-sm text-white">Played</p>
             </div>
             <div>
-              <p className="text-4xl leading-none text-white">{currentStats.winPercentage}</p>
+              <p className="text-2xl leading-none text-white">{currentStats.winPercentage}</p>
               <p className="mt-1 text-sm text-white">Win %</p>
             </div>
             <div>
-              <p className="text-4xl leading-none text-white">{currentStats.averageAttempts}</p>
+              <p className="text-2xl leading-none text-white">{currentStats.averageAttempts}</p>
               <p className="mt-1 text-sm text-white">Avg.</p>
             </div>
             <div>
-              <p className="text-4xl leading-none text-white">{currentStats.maxStreak}</p>
+              <p className="text-2xl leading-none text-white">{currentStats.maxStreak}</p>
               <p className="mt-1 text-sm text-white">Max Streak</p>
             </div>
           </div>
