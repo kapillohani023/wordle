@@ -1,4 +1,4 @@
-import { auth } from "@/app/auth";
+import { auth, signOut } from "@/app/auth";
 import { RootContent } from "@/components/RootContent";
 import { createGame, getUncompletedGameForUser, getUserGameStats, isAllowedGuess, updateGame } from "@/lib/data";
 import { appendSubmittedAttempt, GameView, isValidAttempt, MAX_ATTEMPTS, normalizeAttempt, normalizeWord } from "@/lib/game";
@@ -124,11 +124,18 @@ export default async function Home() {
     };
   }
 
+  async function signOutAction() {
+    "use server";
+
+    await signOut({ redirectTo: "/signin" });
+  }
+
   return (
     <RootContent
       initialGame={toGameView(game)}
       initialStats={initialStats}
       submitAttemptAction={submitAttemptAction}
+      signOutAction={signOutAction}
     />
   );
 }

@@ -120,8 +120,8 @@ export function GameBoard({ game, isSubmitting, shakeSignal, onSubmitAttempt }: 
   }, [game.isCompleted, isSubmitting, handleKeyInput]);
 
   return (
-    <section className="mx-auto flex h-full min-h-[70vh] w-full max-w-sm flex-col justify-between overflow-x-hidden">
-      <div className="space-y-2">
+    <section className="mx-auto flex h-full min-h-0 w-full flex-col">
+      <div className="flex flex-1 flex-col justify-center space-y-2">
         {Array.from({ length: MAX_ATTEMPTS }).map((_, rowIndex) => {
           const submitted = rowIndex < submittedAttempts.length;
           const guess = submitted ? submittedAttempts[rowIndex] : rowIndex === activeRow ? input : "";
@@ -137,7 +137,7 @@ export function GameBoard({ game, isSubmitting, shakeSignal, onSubmitAttempt }: 
         })}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 p-1">
         {keyboardRows.slice(0, 2).map((row) => (
           <div key={row} className="flex justify-center gap-1 sm:gap-1.5">
             {row.split("").map((letter) => (
@@ -166,7 +166,7 @@ export function GameBoard({ game, isSubmitting, shakeSignal, onSubmitAttempt }: 
               key={letter}
               type="button"
               onClick={() => handleKeyInput(letter)}
-              className={`h-10 w-7 rounded border px-1 text-base font-bold transition-colors sm:h-12 sm:w-9 sm:px-2 sm:text-lg ${getKeyClass(letter)}`}
+              className={`h-10 w-10 rounded border px-1 text-base font-bold transition-colors sm:h-12 sm:w-9 sm:px-2 sm:text-lg ${getKeyClass(letter)}`}
             >
               {letter}
             </button>

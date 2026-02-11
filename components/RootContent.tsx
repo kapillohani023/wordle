@@ -9,9 +9,10 @@ type RootContentProps = {
   initialGame: GameView;
   initialStats: GameStats;
   submitAttemptAction: (gameId: string, attempt: string) => Promise<SubmitAttemptResult>;
+  signOutAction: () => Promise<void>;
 };
 
-export function RootContent({ initialGame, initialStats, submitAttemptAction }: RootContentProps) {
+export function RootContent({ initialGame, initialStats, submitAttemptAction, signOutAction }: RootContentProps) {
   const [currentGame, setCurrentGame] = useState<GameView>(initialGame);
   const [currentStats, setCurrentStats] = useState<GameStats>(initialStats);
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
@@ -58,16 +59,24 @@ export function RootContent({ initialGame, initialStats, submitAttemptAction }: 
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-8 sm:px-6">
+    <main className="mx-auto flex h-[100dvh] w-full flex-col overflow-hidden px-2 py-2 sm:px-3 sm:py-3">
+      <form action={signOutAction} className="fixed top-3 right-3 z-50">
+        <button
+          type="submit"
+          className="cursor-pointer rounded border border-gray-300 bg-gray-700 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-gray-600"
+        >
+          Sign out
+        </button>
+      </form>
       {snackbarMessage ? (
-        <div className="pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center">
+        <div className="pointer-events-none fixed inset-x-0 top-3 z-40 flex justify-center px-2">
           <p className="rounded-md border border-white/60 bg-black/80 px-4 py-2 text-sm font-medium text-white shadow-lg">
             {snackbarMessage}
           </p>
         </div>
       ) : null}
-      <div className="flex flex-1 flex-col">
-        <section className="mx-auto mb-6 w-full max-w-sm rounded-md font-bold border-gray-300 bg-gray-400 text-whitepx-4 py-3 shadow-lg">
+      <div className="flex min-h-0 flex-1 flex-col ">
+        <section className="max-w-sm mx-auto mb-2 w-full rounded-md border border-gray-300 bg-gray-400 px-3 py-2 font-bold shadow-lg">
           <div className="grid grid-cols-4 gap-2 text-center">
             <div>
               <p className="text-4xl leading-none text-white">{currentStats.played}</p>
