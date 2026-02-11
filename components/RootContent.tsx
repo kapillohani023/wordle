@@ -9,10 +9,17 @@ type RootContentProps = {
   initialGame: GameView;
   initialStats: GameStats;
   submitAttemptAction: (gameId: string, attempt: string) => Promise<SubmitAttemptResult>;
+  startNewGameAction: (completedGameId: string) => Promise<SubmitAttemptResult>;
   signOutAction: () => Promise<void>;
 };
 
-export function RootContent({ initialGame, initialStats, submitAttemptAction, signOutAction }: RootContentProps) {
+export function RootContent({
+  initialGame,
+  initialStats,
+  submitAttemptAction,
+  startNewGameAction,
+  signOutAction,
+}: RootContentProps) {
   const [currentGame, setCurrentGame] = useState<GameView>(initialGame);
   const [currentStats, setCurrentStats] = useState<GameStats>(initialStats);
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
@@ -30,6 +37,30 @@ export function RootContent({ initialGame, initialStats, submitAttemptAction, si
 
     return () => window.clearTimeout(timeoutId);
   }, [snackbarMessage]);
+
+  useEffect(() => {
+    if (!currentGame.isCompleted) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      startTransition(async () => {
+        try {
+          const result = await startNewGameAction(currentGame.id);
+          setCurrentGame(result.game);
+          setCurrentStats(result.stats);
+          if (result.statusMessage) {
+            setSnackbarMessage(result.statusMessage);
+          }
+        } catch (startError) {
+          const message = startError instanceof Error ? startError.message : "Failed to start new game";
+          setSnackbarMessage(message);
+        }
+      });
+    }, 3000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [currentGame.id, currentGame.isCompleted, startNewGameAction, startTransition]);
 
   async function onSubmitAttempt(attempt: string): Promise<boolean> {
     return new Promise<boolean>((resolve) => {

@@ -1,6 +1,13 @@
 import { auth, signOut } from "@/app/auth";
 import { RootContent } from "@/components/RootContent";
-import { createGame, getUncompletedGameForUser, getUserGameStats, isAllowedGuess, updateGame } from "@/lib/data";
+import {
+  createGame,
+  getGameByIdForUser,
+  getUncompletedGameForUser,
+  getUserGameStats,
+  isAllowedGuess,
+  updateGame,
+} from "@/lib/data";
 import { appendSubmittedAttempt, GameView, isValidAttempt, MAX_ATTEMPTS, normalizeAttempt, normalizeWord } from "@/lib/game";
 import { SubmitAttemptResult } from "@/lib/types";
 import { redirect } from "next/navigation";
@@ -91,27 +98,13 @@ export default async function Home() {
     });
 
     if (updatedGame.isCompleted) {
-      const answerMessage = `${normalizeWord(updatedGame.answer.word)}`;
-      try {
-        const nextGame = await createGame({ userId: liveUserId });
-        const updatedStats = await getUserGameStats(liveUserId);
-        return {
-          game: toGameView(nextGame),
-          stats: updatedStats,
-          accepted: true,
-          statusMessage: `${answerMessage}`,
-        };
-      } catch (createError) {
-        const updatedStats = await getUserGameStats(liveUserId);
-        const createErrorMessage =
-          createError instanceof Error ? createError.message : "Failed to create new game";
-        return {
-          game: toGameView(updatedGame),
-          stats: updatedStats,
-          accepted: true,
-          statusMessage: `${answerMessage}. ${createErrorMessage}`,
-        };
-      }
+      const updatedStats = await getUserGameStats(liveUserId);
+      return {
+        game: toGameView(updatedGame),
+        stats: updatedStats,
+        accepted: true,
+        statusMessage: `${normalizeWord(updatedGame.answer.word)}`,
+      };
     }
 
     const updatedStats = await getUserGameStats(liveUserId);
@@ -122,6 +115,58 @@ export default async function Home() {
       accepted: true,
       statusMessage: "",
     };
+  }
+
+  async function startNewGameAction(completedGameId: string): Promise<SubmitAttemptResult> {
+    "use server";
+
+    const liveSession = await auth();
+    const liveUserId = liveSession?.user?.id;
+
+    if (!liveUserId) {
+      throw new Error("Not authenticated");
+    }
+
+    const existingGame = await getUncompletedGameForUser(liveUserId);
+    if (existingGame) {
+      const liveStats = await getUserGameStats(liveUserId);
+      return {
+        game: toGameView(existingGame),
+        stats: liveStats,
+        accepted: true,
+      };
+    }
+
+    const latestStats = await getUserGameStats(liveUserId);
+    const completedGame = await getGameByIdForUser(liveUserId, completedGameId);
+
+    if (!completedGame || !completedGame.isCompleted) {
+      return {
+        game: toGameView(game),
+        stats: latestStats,
+        accepted: false,
+        statusMessage: "Previous game was not completed",
+      };
+    }
+
+    try {
+      const nextGame = await createGame({ userId: liveUserId });
+      const updatedStats = await getUserGameStats(liveUserId);
+      return {
+        game: toGameView(nextGame),
+        stats: updatedStats,
+        accepted: true,
+      };
+    } catch (createError) {
+      const createErrorMessage =
+        createError instanceof Error ? createError.message : "Failed to create new game";
+      return {
+        game: toGameView(completedGame),
+        stats: latestStats,
+        accepted: false,
+        statusMessage: createErrorMessage,
+      };
+    }
   }
 
   async function signOutAction() {
@@ -135,6 +180,7 @@ export default async function Home() {
       initialGame={toGameView(game)}
       initialStats={initialStats}
       submitAttemptAction={submitAttemptAction}
+      startNewGameAction={startNewGameAction}
       signOutAction={signOutAction}
     />
   );

@@ -19,6 +19,19 @@ export async function getUncompletedGameForUser(userId: string) {
   });
 }
 
+export async function getGameByIdForUser(userId: string, gameId: string) {
+  return prisma.game.findFirst({
+    where: {
+      id: gameId,
+      userId,
+    },
+    include: {
+      answer: true,
+      user: true,
+    },
+  });
+}
+
 type CreateGameInput = {
   userId: string;
 };
