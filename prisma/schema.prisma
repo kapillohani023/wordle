@@ -21,7 +21,6 @@ model User {
 model Word {
   id          Int      @id @default(autoincrement())
   word        String   @unique
-  meaning     String
   createdDate DateTime @map("created_date") @default(now())
   games       Game[]
 
