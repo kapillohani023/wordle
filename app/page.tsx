@@ -1,6 +1,6 @@
 import { auth } from "@/app/auth";
 import { RootContent } from "@/components/RootContent";
-import { createGame, getUncompletedGameForUser, isAllowedGuess, updateGame } from "@/lib/data";
+import { createGame, getUncompletedGameForUser, getUserGameStats, isAllowedGuess, updateGame } from "@/lib/data";
 import { appendSubmittedAttempt, GameView, isValidAttempt, MAX_ATTEMPTS, normalizeAttempt, normalizeWord } from "@/lib/game";
 import { SubmitAttemptResult } from "@/lib/types";
 import { redirect } from "next/navigation";
@@ -24,6 +24,7 @@ export default async function Home() {
 
   const activeGame = await getUncompletedGameForUser(userId);
   const game = activeGame ?? (await createGame({ userId }));
+  const initialStats = await getUserGameStats(userId);
 
   async function submitAttemptAction(gameId: string, attempt: string): Promise<SubmitAttemptResult> {
     "use server";
@@ -36,9 +37,11 @@ export default async function Home() {
     }
 
     const existingGame = await getUncompletedGameForUser(liveUserId);
+    const liveStats = await getUserGameStats(liveUserId);
     if (!existingGame || existingGame.id !== gameId) {
       return {
         game: toGameView(existingGame ?? game),
+        stats: liveStats,
         accepted: false,
         statusMessage: "Game not found",
       };
@@ -47,6 +50,7 @@ export default async function Home() {
     if (!isValidAttempt(attempt)) {
       return {
         game: toGameView(existingGame),
+        stats: liveStats,
         accepted: false,
         statusMessage: "Attempt must be exactly 5 letters",
       };
@@ -56,6 +60,7 @@ export default async function Home() {
     if (existingGame.isCompleted || submittedAttempts.length >= MAX_ATTEMPTS) {
       return {
         game: toGameView(existingGame),
+        stats: liveStats,
         accepted: false,
       };
     }
@@ -66,6 +71,7 @@ export default async function Home() {
     if (!allowed) {
       return {
         game: toGameView(existingGame),
+        stats: liveStats,
         accepted: false,
         statusMessage: "Word is not in the allowed list",
         shake: true,
@@ -84,12 +90,45 @@ export default async function Home() {
       isCompleted: isWin || isOutOfAttempts,
     });
 
+    if (updatedGame.isCompleted) {
+      const answerMessage = `${normalizeWord(updatedGame.answer.word)}`;
+      try {
+        const nextGame = await createGame({ userId: liveUserId });
+        const updatedStats = await getUserGameStats(liveUserId);
+        return {
+          game: toGameView(nextGame),
+          stats: updatedStats,
+          accepted: true,
+          statusMessage: `${answerMessage}`,
+        };
+      } catch (createError) {
+        const updatedStats = await getUserGameStats(liveUserId);
+        const createErrorMessage =
+          createError instanceof Error ? createError.message : "Failed to create new game";
+        return {
+          game: toGameView(updatedGame),
+          stats: updatedStats,
+          accepted: true,
+          statusMessage: `${answerMessage}. ${createErrorMessage}`,
+        };
+      }
+    }
+
+    const updatedStats = await getUserGameStats(liveUserId);
+
     return {
       game: toGameView(updatedGame),
+      stats: updatedStats,
       accepted: true,
       statusMessage: "",
     };
   }
 
-  return <RootContent initialGame={toGameView(game)} submitAttemptAction={submitAttemptAction} />;
+  return (
+    <RootContent
+      initialGame={toGameView(game)}
+      initialStats={initialStats}
+      submitAttemptAction={submitAttemptAction}
+    />
+  );
 }

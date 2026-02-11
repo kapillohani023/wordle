@@ -20,7 +20,7 @@ export function Tile({ letter, status, readOnly = false }: TileProps) {
   return (
     <div
       aria-readonly={readOnly}
-      className={`flex h-14 w-14 items-center justify-center border-2 text-2xl font-bold uppercase transition-colors ${colorByStatus[status]}`}
+      className={`flex h-11 w-11 items-center justify-center border-2 text-xl font-bold uppercase transition-colors sm:h-14 sm:w-14 sm:text-2xl ${colorByStatus[status]}`}
     >
       {letter}
     </div>

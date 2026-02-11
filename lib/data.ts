@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { normalizeWord } from "@/lib/game";
+import { GameStats } from "@/lib/types";
 
 export async function getUncompletedGameForUser(userId: string) {
   return prisma.game.findFirst({
@@ -116,4 +117,55 @@ export async function isAllowedGuess(guess: string): Promise<boolean> {
   });
 
   return Boolean(allowed);
+}
+
+export async function getUserGameStats(userId: string): Promise<GameStats> {
+  const completedGames = await prisma.game.findMany({
+    where: {
+      userId,
+      isCompleted: true,
+    },
+    select: {
+      isWon: true,
+      attempts: true,
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+
+  const played = completedGames.length;
+  if (played === 0) {
+    return {
+      played: 0,
+      winPercentage: 0,
+      averageAttempts: 0,
+      maxStreak: 0,
+    };
+  }
+
+  let wins = 0;
+  let currentStreak = 0;
+  let maxStreak = 0;
+  let totalWinningAttempts = 0;
+
+  for (const game of completedGames) {
+    if (game.isWon) {
+      wins += 1;
+      currentStreak += 1;
+      totalWinningAttempts += game.attempts;
+      if (currentStreak > maxStreak) {
+        maxStreak = currentStreak;
+      }
+    } else {
+      currentStreak = 0;
+    }
+  }
+
+  return {
+    played,
+    winPercentage: Math.round((wins / played) * 100),
+    averageAttempts: wins > 0 ? Number((totalWinningAttempts / wins).toFixed(1)) : 0,
+    maxStreak,
+  };
 }

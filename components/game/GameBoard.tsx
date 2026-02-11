@@ -34,7 +34,6 @@ export function GameBoard({ game, isSubmitting, shakeSignal, onSubmitAttempt }: 
   const [input, setInput] = useState("");
   const submittedAttempts = useMemo(() => game.guesses, [game.guesses]);
   const activeRow = submittedAttempts.length;
-  const attemptsLeft = Math.max(MAX_ATTEMPTS - submittedAttempts.length, 0);
   const letterStatuses = useMemo(() => {
     const statuses: Record<string, TileStatus> = {};
 
@@ -121,7 +120,7 @@ export function GameBoard({ game, isSubmitting, shakeSignal, onSubmitAttempt }: 
   }, [game.isCompleted, isSubmitting, handleKeyInput]);
 
   return (
-    <section className="mx-auto w-full max-w-sm">
+    <section className="mx-auto flex h-full min-h-[70vh] w-full max-w-sm flex-col justify-between overflow-x-hidden">
       <div className="space-y-2">
         {Array.from({ length: MAX_ATTEMPTS }).map((_, rowIndex) => {
           const submitted = rowIndex < submittedAttempts.length;
@@ -138,15 +137,15 @@ export function GameBoard({ game, isSubmitting, shakeSignal, onSubmitAttempt }: 
         })}
       </div>
 
-      <div className="mt-6 space-y-2">
+      <div className="space-y-2">
         {keyboardRows.slice(0, 2).map((row) => (
-          <div key={row} className="flex justify-center gap-1.5">
+          <div key={row} className="flex justify-center gap-1 sm:gap-1.5">
             {row.split("").map((letter) => (
               <button
                 key={letter}
                 type="button"
                 onClick={() => handleKeyInput(letter)}
-                className={`h-12 min-w-9 rounded border px-2 text-lg font-bold transition-colors ${getKeyClass(letter)}`}
+                className={`h-10 w-7 rounded border px-1 text-base font-bold transition-colors sm:h-12 sm:w-9 sm:px-2 sm:text-lg ${getKeyClass(letter)}`}
               >
                 {letter}
               </button>
@@ -154,11 +153,11 @@ export function GameBoard({ game, isSubmitting, shakeSignal, onSubmitAttempt }: 
           </div>
         ))}
 
-        <div className="flex justify-center gap-1.5">
+        <div className="flex justify-center gap-1 sm:gap-1.5">
           <button
             type="button"
             onClick={() => handleKeyInput("ENTER")}
-            className="h-12 rounded border border-gray-300 bg-gray-400 px-3 text-sm font-semibold text-white transition-colors hover:bg-gray-500"
+            className="h-10 rounded border border-gray-300 bg-gray-400 px-2 text-xs font-semibold text-white transition-colors hover:bg-gray-500 sm:h-12 sm:px-3 sm:text-sm"
           >
             ENTER
           </button>
@@ -167,7 +166,7 @@ export function GameBoard({ game, isSubmitting, shakeSignal, onSubmitAttempt }: 
               key={letter}
               type="button"
               onClick={() => handleKeyInput(letter)}
-              className={`h-12 min-w-9 rounded border px-2 text-lg font-bold transition-colors ${getKeyClass(letter)}`}
+              className={`h-10 w-7 rounded border px-1 text-base font-bold transition-colors sm:h-12 sm:w-9 sm:px-2 sm:text-lg ${getKeyClass(letter)}`}
             >
               {letter}
             </button>
@@ -175,7 +174,7 @@ export function GameBoard({ game, isSubmitting, shakeSignal, onSubmitAttempt }: 
           <button
             type="button"
             onClick={() => handleKeyInput("BACKSPACE")}
-            className="h-12 rounded border border-gray-300 bg-gray-400 px-3 text-sm font-semibold text-white transition-colors hover:bg-gray-500"
+            className="h-10 rounded border border-gray-300 bg-gray-400 px-2 text-xs font-semibold text-white transition-colors hover:bg-gray-500 sm:h-12 sm:px-3 sm:text-sm"
           >
             BACK
           </button>

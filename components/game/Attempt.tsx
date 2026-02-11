@@ -18,7 +18,7 @@ export function Attempt({ guess, answer, submitted, shake = false }: AttemptProp
     : letters.map((letter) => (letter.trim() ? "pending" : "empty"));
 
   return (
-    <div className={`flex justify-center gap-2 ${shake ? "animate-shake" : ""}`}>
+    <div className={`flex justify-center gap-1.5 sm:gap-2 ${shake ? "animate-shake" : ""}`}>
       {letters.map((letter, index) => (
         <Tile
           key={`${index}-${letter}`}
